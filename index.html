@@ -88,7 +88,8 @@
             flex: 1;
         }
         
-        .audio-btn {
+        /* כפתורי שמע ותרגום כלליים */
+        .audio-btn, .inline-btn {
             background: #e1e8ed;
             border: none;
             border-radius: 50%;
@@ -102,7 +103,7 @@
             transition: background 0.2s;
             flex-shrink: 0;
         }
-        .audio-btn:hover {
+        .audio-btn:hover, .inline-btn:hover {
             background: #cbd5e0;
         }
         .audio-btn.playing {
@@ -138,12 +139,21 @@
             font-style: italic;
             margin-bottom: 15px;
         }
+        
+        /* עיצוב שורות התשובות האמריקאיות החדשות */
         .options {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
+        .option-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
         .option-btn {
+            flex: 1;
             background: #fff;
             border: 2px solid #34495e;
             border-radius: 8px;
@@ -153,6 +163,7 @@
             transition: all 0.2s;
             text-align: right;
             font-weight: 500;
+            position: relative;
         }
         .option-btn:hover:not([disabled]) {
             background: #f0f4f8;
@@ -168,6 +179,20 @@
             border-color: var(--danger);
             color: #bd2130;
         }
+        
+        /* בועת תרגום הפועל הקטנה בתוך לחצן התשובה */
+        .opt-translation {
+            display: block;
+            font-size: 0.85rem;
+            color: #2980b9;
+            font-weight: normal;
+            margin-top: 4px;
+            direction: ltr;
+            text-align: right;
+            border-top: 1px dashed #cbd5e0;
+            padding-top: 4px;
+        }
+
         .rationale {
             margin-top: 20px;
             padding: 15px;
@@ -253,7 +278,7 @@
 let englishMode = false;
 let currentTimeout = null;
 
-// מאגר השאלות המלא עם תרגום זהה ומדויק של כל ההסברים לאנגלית
+// מאגר 30 השאלות המלא עם תרגום מובנה לכל פועל ופועל באפשרויות הבחירה
 const allQuestions = [
     { 
         q: "אתמול המורים _______ על הלוח את חוקי המשחק. (כ.ת.ב)", 
@@ -261,6 +286,7 @@ const allQuestions = [
         hint: "המורים ביצעו את פעולת הכתיבה בעצמם באופן פשוט.", 
         hint_en: "The teachers performed the writing action themselves directly (Kal).", 
         options: ["כָּתְבוּ", "הִכְתִּיבוּ", "יִכְתְּבוּ", "כּוֹתְבִים"], 
+        options_en: ["They wrote", "They dictated", "They will write", "They are writing"],
         correct: 0, 
         rationales: [
             "בול! זהו בניין קל (הבניין הראשון) בזמן עבר – הם כתבו בעצמם. <br><small><b>English:</b> Bingo! This is Kal (the first binyan) in the past tense – they wrote themselves.</small>", 
@@ -275,6 +301,7 @@ const allQuestions = [
         hint: "המורים גרמו לתלמידים לכתוב את המילים על ידי כך שהקריאו אותן.", 
         hint_en: "The teachers caused the students to write by dictating (Hif'il).", 
         options: ["כָּתְבוּ", "הִכְתִּיבוּ", "יַכְתִּיבוּ", "מַכְתִּיבִים"], 
+        options_en: ["They wrote", "They dictated", "They will dictate", "They are dictating"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהם כתבו בעצמם, אך כאן הם גרמו לתלמידים לכתוב. <br><small><b>English:</b> Kal binyan means they wrote themselves, but here they caused the students to write.</small>", 
@@ -289,6 +316,7 @@ const allQuestions = [
         hint: "הבנים יבצעו את פעולת הריקוד בעצמם בעתיד.", 
         hint_en: "The boys will do the dancing action themselves tomorrow (Kal future).", 
         options: ["רָקְדוּ", "יַרְקִידוּ", "יִרְקְדוּ", "רוֹקְדִים"], 
+        options_en: ["They danced", "They will make dance", "They will dance", "They are dancing"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר, והמשפט מדבר על 'מחר'. <br><small><b>English:</b> This is a past tense form, and the sentence speaks about 'tomorrow'.</small>", 
@@ -303,6 +331,7 @@ const allQuestions = [
         hint: "הבנים יגרמו לבנות לרקוד איתם (יפעילו אותן).", 
         hint_en: "The boys will lead/make the girls dance (Hif'il causative).", 
         options: ["יִרְקְדוּ", "הִרְקִידוּ", "יַרְקִידוּ", "מַרְקִידִים"], 
+        options_en: ["They will dance", "They made dance", "They will make dance", "They are making dance"],
         correct: 2, 
         rationales: [
             "בניין קל פירושו לרקוד בעצמם, אך כאן הם מפעילים את הבנות. <br><small><b>English:</b> Kal binyan means dancing themselves, but here they activate the girls.</small>", 
@@ -317,6 +346,7 @@ const allQuestions = [
         hint: "רוני שם את הבגד על עצמו באופן פשוט ופעיל.", 
         hint_en: "Roni put the garment on himself directly (Kal).", 
         options: ["לָבַשׁ", "הִלְבִּישׁ", "יִלְבַּשׁ", "לוֹבֵשׁ"], 
+        options_en: ["He wore / put on", "He dressed (someone)", "He will wear", "He is wearing"],
         correct: 0, 
         rationales: [
             "נכון! רוני ביצע את הפעולה על עצמו בעבר – בניין קל. <br><small><b>English:</b> Correct! Roni performed the action on himself in the past – Kal binyan.</small>", 
@@ -331,6 +361,7 @@ const allQuestions = [
         hint: "האבא עשה את פעולת הלבישה עבור מישהו אחר וגרם לו להיות לבוש.", 
         hint_en: "The father dressed someone else, causing him to be clothed (Hif'il).", 
         options: ["לָבַשׁ", "הִלְבִּישׁ", "יַלְבִּישׁ", "מַלְבִּישׁ"], 
+        options_en: ["He wore", "He dressed (someone)", "He will dress", "He is dressing"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהאבא לבש בגדים של עצמו. <br><small><b>English:</b> Kal binyan means that the father wore his own clothes.</small>", 
@@ -345,6 +376,7 @@ const allQuestions = [
         hint: "הילדים קולטים ומקשיבים לצלילים בעצמם ברגע זה.", 
         hint_en: "The children are hearing the sounds themselves right now (Kal present).", 
         options: ["שָׁמְעוּ", "מַשְׁמִיעִים", "שׁוֹמְעִים", "יִשְׁמְעוּ"], 
+        options_en: ["They heard", "They are playing (sound)", "They are listening/hearing", "They will hear"],
         correct: 2, 
         rationales: [
             "זוהי צורת עבר, והמשפט מתרחש כעת 'ברגע זה'. <br><small><b>English:</b> This is a past tense form, and the sentence takes place right now 'at this moment'.</small>", 
@@ -359,6 +391,7 @@ const allQuestions = [
         hint: "הרמקולים מייצרים את הצליל וגורמים לכולם לשמוע אותו.", 
         hint_en: "The speakers emit sound, making it heard by others (Hif'il present).", 
         options: ["שׁוֹמְעִים", "מַשְׁמִיעִים", "הִשְׁמִיעוּ", "יַשְׁמִיעוּ"], 
+        options_en: ["They hear", "They are playing (sound)", "They played", "They will play"],
         correct: 1, 
         rationales: [
             "רמקולים אינם יכולים להקשיב בעצמם (בניין קל). <br><small><b>English:</b> Speakers cannot listen by themselves (Kal binyan).</small>", 
@@ -373,6 +406,7 @@ const allQuestions = [
         hint: "אנחנו נכניס את האוכל לפינו בעצמנו בעתיד.", 
         hint_en: "We will perform the eating action ourselves in the future (Kal future).", 
         options: ["אָכַלְנוּ", "נַאֲכִיל", "נֹאכַל", "אוֹכְלִים"], 
+        options_en: ["We ate", "We will feed", "We will eat", "We are eating"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר, והמשפט מדבר על העתיד. <br><small><b>English:</b> This is a past tense form, and the sentence speaks about the future.</small>", 
@@ -387,6 +421,7 @@ const allQuestions = [
         hint: "אנחנו ניתן אוכל לחתולים ונגרום להם לאכול (פעולת האכלה).", 
         hint_en: "We will provide food to the cats, causing them to eat (Hif'il future).", 
         options: ["נֹאכַל", "נַאֲכִיל", "הֶאֱכַלְנוּ", "מַאֲכִילים"], 
+        options_en: ["We will eat", "We will feed", "We fed", "We are feeding"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שאנחנו נאכל את החתולים עצמם! זה ממש לא נכון. <br><small><b>English:</b> Kal binyan means that we will eat the cats themselves! That is absolutely incorrect.</small>", 
@@ -401,6 +436,7 @@ const allQuestions = [
         hint: "התלמיד צמצם את המרחק והתקרב בעצמו באופן פשוט.", 
         hint_en: "The student moved closer by himself (Kal past).", 
         options: ["קָרַב", "הִקְרִיב", "יִקְרַב", "קָרֵב"], 
+        options_en: ["He approached", "He sacrificed / brought close", "He will approach", "He is approaching"],
         correct: 0, 
         rationales: [
             "נכון מאוד! התלמיד התקרב בעצמו בעבר – בניין קל. <br><small><b>English:</b> Correct! The student approached himself in the past – Kal binyan.</small>", 
@@ -415,6 +451,7 @@ const allQuestions = [
         hint: "התלמיד גרם לכיסא להיות קרוב יותר לשולחן (הזיז חפץ אחר).", 
         hint_en: "The student caused the chair to be close (Hif'il causative).", 
         options: ["קָרַב", "הִקְרִיב", "יַקְרִיב", "מַקְרִיב"], 
+        options_en: ["He approached", "He brought close", "He will bring close", "He is bringing close"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהתלמיד עצמו נהיה קרוב ולא הכיסא. <br><small><b>English:</b> Kal binyan means that the student himself became close, and not the chair.</small>", 
@@ -429,6 +466,7 @@ const allQuestions = [
         hint: "המים יגיעו לנקודת רתיחה וירתחו בעצמם בעקבות החום.", 
         hint_en: "The water will reach boiling point on its own (Kal future).", 
         options: ["רָתְחוּ", "יַרְתִּיחוּ", "יִרְתְּחוּ", "רוֹתְחִים"], 
+        options_en: ["They boiled", "They will boil (something)", "They will boil", "They are boiling"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר, והמשפט מדבר על מחר. <br><small><b>English:</b> This is a past tense form, and the sentence speaks about tomorrow.</small>", 
@@ -443,6 +481,7 @@ const allQuestions = [
         hint: "הטבחים יגרמו למים לרתוח על ידי הדלקת האש.", 
         hint_en: "The chefs will cause the water to boil (Hif'il future).", 
         options: ["יִרְתְּחוּ", "יַרְתִּיחוּ", "הִרְתִּיחוּ", "מַרְתִּיחִים"], 
+        options_en: ["They will boil", "They will boil (something)", "They boiled (something)", "They are boiling (something)"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהטבחים עצמם ירתחו מחום! <br><small><b>English:</b> Kal binyan means that the chefs themselves will boil from the heat!</small>", 
@@ -457,6 +496,7 @@ const allQuestions = [
         hint: "התינוק מבצע את פעולת המציצה והאכילה בעצמו כעת.", 
         hint_en: "The baby is sucking milk himself right now (Kal present).", 
         options: ["יָנַק", "מֵנִיק", "יוֹנֵק", "יִינַק"], 
+        options_en: ["He nursed", "He is breastfeeding (male)", "He is nursing", "He will nurse"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר, והמשפט מתרחש כעת 'כרגע'. <br><small><b>English:</b> This is a past tense form, and the sentence takes place right now 'at this moment'.</small>", 
@@ -471,6 +511,7 @@ const allQuestions = [
         hint: "האם מעניקה חלב וגורמת לתינוק לינוק (פעולה מפעילה).", 
         hint_en: "The mother gives milk, causing the baby to nurse (Hif'il present).", 
         options: ["יוֹנֶקֶת", "מֵנִיקָה", "הֵנִיקָה", "תִּינַק"], 
+        options_en: ["She is nursing", "She is breastfeeding", "She breastfed", "She will nurse"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהאם יונקת בעצמה ממישהו אחר. <br><small><b>English:</b> Kal binyan means that the mother herself is nursing from someone else.</small>", 
@@ -485,6 +526,7 @@ const allQuestions = [
         hint: "Mמטיילים חצו ועברו את הכביש בעצמם באופן פשוט.", 
         hint_en: "The hikers crossed by themselves (Kal past).", 
         options: ["עָבְרוּ", "הֶעֱבִירוּ", "יַעַבְרוּ", "עוֹבְרִים"], 
+        options_en: ["They crossed / passed", "They transferred", "They will cross", "They are crossing"],
         correct: 0, 
         rationales: [
             "מצוין! המטיילים ביצעו את המעבר בעצמם בעבר – בניין קל. <br><small><b>English:</b> Excellent! The hikers made the crossing themselves in the past – Kal binyan.</small>", 
@@ -499,6 +541,7 @@ const allQuestions = [
         hint: "המטיילים גרמו לחבילות לעבור מקום (הזיזו חפצים).", 
         hint_en: "The hikers caused the packages to move (Hif'il past).", 
         options: ["עָבְרוּ", "הֶעֱבִירוּ", "יַעֲבִירוּ", "מַעֲבִירִים"], 
+        options_en: ["They crossed", "They transferred", "They will transfer", "They are transferring"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהמטיילים עצמם עברו בין הרכבים במקום החבילות. <br><small><b>English:</b> Kal binyan means that the hikers themselves crossed between the vehicles instead of the packages.</small>", 
@@ -510,9 +553,10 @@ const allQuestions = [
     { 
         q: "מחר המנורה בחדר _______ שוב ותאיר. (ד.ל.ק)", 
         q_en: "Tomorrow the lamp in the room _______ up again.", 
-        hint: "המנורה תפעל ותבער בעצמה בעתיד.", 
+        hint: "Mמנורה תפעל ותבער בעצמה בעתיד.", 
         hint_en: "The lamp will shine on its own (Kal future).", 
         options: ["דָּלְקָה", "תַּדְלִיק", "תִּדְלַק", "דּוֹלֶקֶת"], 
+        options_en: ["It burned", "It will turn on (something)", "It will burn / light", "It is burning"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר, והמשפט מדבר על מחר. <br><small><b>English:</b> This is a past tense form, and the sentence speaks about tomorrow.</small>", 
@@ -527,6 +571,7 @@ const allQuestions = [
         hint: "דני יבצע פעולה מפעילה ויגרום למנורה להידלק ולהאיר.", 
         hint_en: "Danny will cause the lamp to light up (Hif'il future).", 
         options: ["יִדְלַק", "יַדְלִיק", "הִדְלִיק", "מַדְלִיק"], 
+        options_en: ["It will burn", "He will turn on", "He turned on", "He is turning on"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שדני עצמו יתחיל לבעור באש! <br><small><b>English:</b> Kal binyan means that Danny himself will start burning in fire!</small>", 
@@ -541,6 +586,7 @@ const allQuestions = [
         hint: "האורחים ביצעו את פעולת השיבה והחזרה בעצמם בעבר.", 
         hint_en: "The guests went back themselves (Kal past).", 
         options: ["חָזְרוּ", "הֶחְזִירוּ", "יַחְזְרוּ", "חוֹזְרִים"], 
+        options_en: ["They returned", "They returned (an item)", "They will return", "They are returning"],
         correct: 0, 
         rationales: [
             "בדיוק! האורחים שבו בעצמם בעבר – בניין קל. <br><small><b>English:</b> Exactly! The guests returned themselves in the past – Kal binyan.</small>", 
@@ -555,6 +601,7 @@ const allQuestions = [
         hint: "האורחים גרמו למפתחות לשוב אל בעליהם (פעולת השבה).", 
         hint_en: "The guests gave the keys back (Hif'il past).", 
         options: ["חָזְרוּ", "הֶחְזִירוּ", "יַחְזִירוּ", "מַחְזִירִים"], 
+        options_en: ["They returned", "They returned (an item)", "They will return (an item)", "They are returning (an item)"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהאורחים עצמם חזרו (אך כאן מדובר על המפתחות). <br><small><b>English:</b> Kal binyan means that the guests themselves returned (but here it is about the keys).</small>", 
@@ -569,6 +616,7 @@ const allQuestions = [
         hint: "העץ יגדל ויתפתח בעצמו לאורך זמן בעתיד.", 
         hint_en: "The tree will grow on its own over time (Kal future).", 
         options: ["צָמַח", "יַצְמִיחַ", "יִצְמַח", "צוֹמֵחַ"], 
+        options_en: ["It grew", "It will grow (something)", "It will grow", "It is growing"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר. <br><small><b>English:</b> This is a past tense form.</small>", 
@@ -583,6 +631,7 @@ const allQuestions = [
         hint: "העץ יגרום לפירות לצאת ולהתפתח מתוכו.", 
         hint_en: "The tree will cause fruits to grow out of it (Hif'il future).", 
         options: ["יִצְמַח", "יַצְמִיחַ", "הִצְמִיחַ", "מַצְמִיחַ"], 
+        options_en: ["It will grow", "It will yield/grow (fruit)", "It yielded (fruit)", "It is yielding (fruit)"],
         correct: 1, 
         rationales: [
             "בניין קל פירושו שהעץ עצמו יגדל ויהפוך לפרי. <br><small><b>English:</b> Kal binyan means that the tree itself will grow and turn into a fruit.</small>", 
@@ -597,6 +646,7 @@ const allQuestions = [
         hint: "התלמידים שובתים ומפסיקים את פעילותם בעצמם כרגע.", 
         hint_en: "The students are on strike themselves right now (Kal present).", 
         options: ["שָׁבְתוּ", "מַשְׁבִּיתִים", "שׁוֹבְתִים", "יִשְׁבְּתוּ"], 
+        options_en: ["They went on strike", "They are shutting down", "They are striking", "They will strike"],
         correct: 2, 
         rationales: [
             "זוהי צורת זמן עבר, והמשפט קורה 'ברגע זה'. <br><small><b>English:</b> This is a past tense form, and the sentence is happening 'at this moment'.</small>", 
@@ -611,6 +661,7 @@ const allQuestions = [
         hint: "התלמידים גורמים למערכת הלימודים כולה לעצור ולהפסיק לפעול.", 
         hint_en: "The students cause the school system to stop operating (Hif'il present).", 
         options: ["שׁוֹבְתִים", "מַשְׁבִּיתִים", "הִשְׁבִּיתוּ", "יַשְׁבִּיתוּ"], 
+        options_en: ["They are striking", "They are shutting down", "They shut down", "They will shut down"],
         correct: 1, 
         rationales: [
             "בניין קל משמעותו שהם עצמם שובתים, אך כאן מדובר על השבתת הלימודים. <br><small><b>English:</b> Kal binyan means that they themselves strike, but here it is about shutting down the studies.</small>", 
@@ -619,10 +670,10 @@ const allQuestions = [
             "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>"
         ] 
     },
-    { q: "אתמול החייל _______ בגאווה במסדר הצבאי. (צ.ע.ד)", q_en: "Yesterday the soldier _______ proudly in the military parade.", hint: "החייל הלך ברגליו בעצמו במסגרת הצעידה.", hint_en: "The soldier walked/marched by himself (Kal past).", options: ["צָעַד", "הִצְעִיד", "יִצְעַד", "צוֹעֵד"], correct: 0, rationales: ["נכון! החייל הלך ברגליו בעצמו בעבר – בניין קל. <br><small><b>English:</b> Correct! The soldier walked on his own feet in the past – Kal binyan.</small>", "זהו בניין הפעיל, שפירושו להוביל אחרים בצעידה. <br><small><b>English:</b> This is Hif'il binyan, which means leading others in marching.</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small> ", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] },
-    { q: "אתמול המפקד _______ את כל החיילים במסדר. (צ.ע.ד)", q_en: "Yesterday the commander _______ all the soldiers in the parade.", hint: "המפקד נתן פקודה וגרם לחיילים לצעוד יחד.", hint_en: "The commander caused the soldiers to march (Hif'il past).", options: ["צָעַד", "הִצְעִיד", "יַצְעִיד", "מַצְעִיד"], correct: 1, rationales: ["בניין קל פירושו שהמפקד צעד לבדו ברגליו. <br><small><b>English:</b> Kal binyan means that the commander marched alone on his feet.</small>", "מעולה! המפקד גרם לחיילים לצעוד בעבר – בניין הפעיל. <br><small><b>English:</b> Excellent! The commander caused the soldiers to march in the past – Hif'il binyan.</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] },
-    { q: "הילד הקטן רץ מהר ובסוף _______ על הדשא. (נ.פ.ל)", q_en: "The little boy ran fast and finally _______ on the grass.", hint: "הילד חווה את הנפילה בעצמו באופן פשוט.", hint_en: "The boy experienced the fall himself (Kal past).", options: ["נָפַל", "הִפִּיל", "יִפֹּל", "נוֹפֵל"], correct: 0, rationales: ["בדיוק! הילד שמט את עצמו/נפל בעבר – בניין קל. <br><small><b>English:</b> Exactly! The child dropped himself/fell in the past – Kal binyan.</small>", "זהו בניין הפעיל, שמשמעותו לגרום לחפץ או אדם אחר ליפול. <br><small><b>English:</b> This is Hif'il binyan, which means causing another object or person to fall.</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] },
-    { q: "השחקן בטעות _______ את הכוס מהשולחן. (נ.פ.ל)", q_en: "The actor accidentally _______ the cup from the table.", hint: "השחקן ביצע פעולה וגרם לכוס ליפול ארצה.", hint_en: "The actor performed an action that caused the cup to fall (Hif'il past).", options: ["נָפַל", "הִפִּיל", "יַפִּיל", "מַפִּיל"], correct: 1, rationales: ["בניין קל פירושו שהשחקן עצמו נפל ארצה מהשולחן. <br><small><b>English:</b> Kal binyan means that the actor himself fell to the ground from the table.</small>", "כל הכבוד! השחקן גרם לכוס ליפול (בניין הפעיל בזמן עבר) – סיום מצוין! <br><small><b>English:</b> Well done! The actor caused the cup to fall (Hif'il binyan in the past tense) – an excellent finish!</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] }
+    { q: "אתמול החייל _______ בגאווה במסדר הצבאי. (צ.ע.ד)", q_en: "Yesterday the soldier _______ proudly in the military parade.", hint: "החייל הלך ברגליו בעצמו במסגרת הצעידה.", hint_en: "The soldier walked/marched by himself (Kal past).", options: ["צָעַד", "הִצְעִיד", "יִצְעַד", "צוֹעֵד"], options_en: ["He marched", "He led a march", "He will march", "He is marching"], correct: 0, rationales: ["נכון! החייל הלך ברגליו בעצמו בעבר – בניין קל. <br><small><b>English:</b> Correct! The soldier walked on his own feet in the past – Kal binyan.</small>", "זהו בניין הפעיל, שפירושו להוביל אחרים בצעידה. <br><small><b>English:</b> This is Hif'il binyan, which means leading others in marching.</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small> ", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] },
+    { q: "אתמול המפקד _______ את כל החיילים במסדר. (צ.ע.ד)", q_en: "Yesterday the commander _______ all the soldiers in the parade.", hint: "Mמפקד נתן פקודה וגרם לחיילים לצעוד יחד.", hint_en: "The commander caused the soldiers to march (Hif'il past).", options: ["צָעַד", "הִצְעִיד", "יַצְעִיד", "מַצְעִיד"], options_en: ["He marched", "He led a march", "He will lead a march", "He is leading a march"], correct: 1, rationales: ["בניין קל פירושו שהמפקד צעד לבדו ברגליו. <br><small><b>English:</b> Kal binyan means that the commander marched alone on his feet.</small>", "מעולה! המפקד גרם לחיילים לצעוד בעבר – בניין הפעיל. <br><small><b>English:</b> Excellent! The commander caused the soldiers to march in the past – Hif'il binyan.</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] },
+    { q: "הילד הקטן רץ מהר ובסוף _______ על הדשא. (נ.פ.ל)", q_en: "The little boy ran fast and finally _______ on the grass.", hint: "הילד חווה את הנפילה בעצמו באופן פשוט.", hint_en: "The boy experienced the fall himself (Kal past).", options: ["נָפַל", "הִפִּיל", "יִפֹּל", "נוֹפֵל"], options_en: ["He fell", "He dropped", "He will fall", "He is falling"], correct: 0, rationales: ["בדיוק! הילד שמט את עצמו/נפל בעבר – בניין קל. <br><small><b>English:</b> Exactly! The child dropped himself/fell in the past – Kal binyan.</small>", "זהו בניין הפעיל, שמשמעותו לגרום לחפץ או אדם אחר ליפול. <br><small><b>English:</b> This is Hif'il binyan, which means causing another object or person to fall.</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] },
+    { q: "השחקן בטעות _______ את הכוס מהשולחן. (נ.פ.ל)", q_en: "The actor accidentally _______ the cup from the table.", hint: "השחקן ביצע פעולה וגרם לכוס ליפול ארצה.", hint_en: "The actor performed an action that caused the cup to fall (Hif'il past).", options: ["נָפַל", "הִפִּיל", "יַפִּיל", "מַפִּיל"], options_en: ["It fell", "He dropped", "He will drop", "He is dropping"], correct: 1, rationales: ["בניין קל פירושו שהשחקן עצמו נפל ארצה מהשולחן. <br><small><b>English:</b> Kal binyan means that the actor himself fell to the ground from the table.</small>", "כל הכבוד! השחקן גרם לכוס ליפול (בניין הפעיל בזמן עבר) – סיום מצוין! <br><small><b>English:</b> Well done! The actor caused the cup to fall (Hif'il binyan in the past tense) – an excellent finish!</small>", "זוהי צורת זמן עתיד. <br><small><b>English:</b> This is a future tense form.</small>", "זוהי צורת זמן הווה. <br><small><b>English:</b> This is a present tense form.</small>"] }
 ];
 
 let questionsList = [];
@@ -688,6 +739,18 @@ function toggleEnglish() {
     }
 }
 
+// פונקציית הקראה (תומכת בהקראת משפטים והקראת פעלים בודדים)
+function speakWord(text, lang) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const cleanText = lang === 'he' ? text.replace(/[\u0591-\u05C7]/g, "") : text;
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = lang === 'he' ? 'he-IL' : 'en-US';
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
 function speakSentenceWithPause(fullText, isHebrew, buttonElement) {
     if (!('speechSynthesis' in window)) {
         alert("הדפדפן שלך לא תומך בהקראה קולית.");
@@ -740,6 +803,16 @@ function speakSentenceWithPause(fullText, isHebrew, buttonElement) {
             utterance2.onend = () => buttonElement.classList.remove('playing');
             window.speechSynthesis.speak(utterance2);
         });
+    }
+}
+
+// פונקציה להצגה/הסתרה דינמית של תרגום פועל ספציפי
+function toggleVerbTranslation(index) {
+    const transSpan = document.getElementById(`trans-span-${index}`);
+    if (transSpan.style.display === 'none' || transSpan.style.display === '') {
+        transSpan.style.display = 'block';
+    } else {
+        transSpan.style.display = 'none';
     }
 }
 
@@ -800,8 +873,19 @@ function showQuestion() {
             <div class="options">
     `;
 
+    // בניית שורות לחצני התשובות עם כפתור רמקול וכפתור גלובוס לתרגום מובנה לצד כל פועל
     currentQ.options.forEach((opt, idx) => {
-        html += `<button class="option-btn" onclick="checkAnswer(${idx}, this)">${opt}</button>`;
+        const translationText = currentQ.options_en[idx];
+        html += `
+            <div class="option-row">
+                <button class="inline-btn" title="הקרא פועל זה" onclick="speakWord('${opt.replace(/'/g, "\\'")}', 'he')">🔊</button>
+                <button class="inline-btn" title="תרגם פועל זה" onclick="toggleVerbTranslation(${idx})">🌐</button>
+                <button class="option-btn" id="opt-btn-${idx}" onclick="checkAnswer(${idx}, this)">
+                    ${opt}
+                    <span id="trans-span-${idx}" class="opt-translation" style="display:none;">👉 ${translationText}</span>
+                </button>
+            </div>
+        `;
     });
 
     html += `</div></div>`;
@@ -815,8 +899,11 @@ function checkAnswer(selectedIdx, btnElement) {
 
     const currentQ = questionsList[currentQuestionIndex];
     const buttons = document.querySelectorAll('.option-btn');
+    const inlineButtons = document.querySelectorAll('.inline-btn');
     
+    // נעילת כל כפתורי הבחירה והעזר
     buttons.forEach(btn => btn.disabled = true);
+    inlineButtons.forEach(btn => btn.disabled = true);
 
     const rationaleSpace = document.getElementById('rationale-space');
     rationaleSpace.innerHTML = currentQ.rationales[selectedIdx] || "תשובה נכונה!";
@@ -833,7 +920,8 @@ function checkAnswer(selectedIdx, btnElement) {
         rationaleSpace.style.background = '#fce8e6';
         rationaleSpace.style.color = '#bd2130';
         
-        buttons[currentQ.correct].classList.add('correct');
+        // סימון התשובה הנכונה בירוק
+        document.getElementById(`opt-btn-${currentQ.correct}`).classList.add('correct');
 
         if (!sessionWrongAnswers.includes(currentQ)) {
             sessionWrongAnswers.push(currentQ);
@@ -859,7 +947,7 @@ function handleRoundEnd() {
                     Now let's solve again the cards you got wrong
                 </h3>
                 <p style="margin: 15px 0; color: #34495e;">נשארו ${sessionWrongAnswers.length} כרטיסיות הדורשות תרגול נוסף.</p>
-                <button class="next-btn" style="display:inline-block; background: #f39c12;" onclick="wrongAnswersIndex.length > 0 ? startWrongQuestionsRoutine() : startWrongQuestionsRoutine()">שנתחיל? / Let's go ➔</button>
+                <button class="next-btn" style="display:inline-block; background: #f39c12; cursor: pointer;" onclick="startWrongQuestionsRoutine()">שנתחיל? / Let's go ➔</button>
             </div>
         `;
         document.getElementById('quiz-space').innerHTML = html;
@@ -878,7 +966,7 @@ function showResults() {
                 כל הכבוד! ענית נכון על כל השאלות! 🏆
             </p>
             <p style="color: #7f8c8d; font-size: 1.1rem;">You successfully cleared all cards with zero mistakes!</p>
-            <button class="next-btn" style="display:inline-block; background:var(--primary); margin-top:30px;" onclick="initGame()">משחק חדש / Play Again 🔄</button>
+            <button class="next-btn" style="display:inline-block; background:var(--primary); margin-top:30px; cursor: pointer;" onclick="initGame()">משחק חדש / Play Again 🔄</button>
         </div>
     `;
     document.getElementById('quiz-space').innerHTML = html;
