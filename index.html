@@ -3,101 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק בניינים: בניין קל מול בניין הפעיל</title>
+    <title>תרגול אסטרטגיית תמחור</title>
     <style>
-        :root {
-            --primary: #4a90e2;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --background: #f5f7fa;
-            --text: #2c3e50;
-        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
         }
-        .container {
+        .quiz-container {
             max-width: 600px;
-            width: 100%;
-            background: white;
+            background: #fff;
+            margin: 0 auto;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        h1 { color: var(--primary); margin-bottom: 5px; }
-        .subtitle { color: #7f8c8d; margin-bottom: 15px; font-size: 0.9em; }
-        
-        /* כפתור תרגום לאנגלית */
-        .lang-toggle-btn {
-            background-color: #34495e;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            font-size: 0.85rem;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            font-weight: bold;
-            transition: background 0.2s;
+        .question-container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
         }
-        .lang-toggle-btn.eng-active {
-            background-color: #f39c12;
+        .question-wrapper {
+            flex-grow: 1;
         }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #eee;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        .progress {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        .card {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        .card.active { display: block; }
         .question {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: bold;
-            margin-bottom: 10px;
-            line-height: 1.6;
+            margin-bottom: 5px;
+            color: #333;
         }
-        .english-translation {
+        .translation-text {
             font-size: 1rem;
-            color: #2980b9;
+            color: #666;
+            font-style: italic;
             margin-bottom: 20px;
+            display: none;
             direction: ltr;
             text-align: left;
-            display: none;
-            background: #f0f7fc;
-            padding: 8px 12px;
-            border-left: 4px solid #2980b9;
-            border-radius: 4px;
         }
-        .english-translation.visible { display: block; }
-        
-        .hint {
-            font-size: 0.9rem;
-            color: #95a5a6;
-            font-style: italic;
-            margin-bottom: 15px;
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .btn-translate {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-speak {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            font-size: 1.1rem;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .options {
             display: flex;
@@ -105,355 +78,198 @@
             gap: 12px;
         }
         .option-btn {
-            background: #fff;
-            border: 2px solid #34495e;
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s;
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
             text-align: right;
-            font-weight: 500;
+            transition: all 0.2s ease;
         }
-        .option-btn:hover:not([disabled]) {
-            background: #f0f4f8;
-            border-color: var(--primary);
+        .option-btn:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
         }
-        .option-btn.correct {
-            background: #e8f8f0;
-            border-color: var(--success);
-            color: #1e7e34;
-        }
-        .option-btn.wrong {
-            background: #fce8e6;
-            border-color: var(--danger);
-            color: #bd2130;
-        }
-        .rationale {
+        .feedback {
             margin-top: 20px;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 6px;
             display: none;
-            text-align: right;
-            font-size: 1rem;
             line-height: 1.5;
         }
-        .rationale.visible { display: block; }
-        .next-btn {
-            margin-top: 20px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
+        .feedback-content-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .feedback.wrong {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .eng-feedback {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #f5c6cb;
+            direction: ltr;
+            text-align: left;
             display: none;
-            font-weight: bold;
-        }
-        .next-btn:hover { opacity: 0.9; }
-        
-        /* מערכת בלונים */
-        .balloon-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 999;
-        }
-        .balloon {
-            position: absolute;
-            bottom: -100px;
-            width: 40px;
-            height: 50px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: floatUp 4s linear forwards;
-        }
-        .balloon::before {
-            content: "";
-            position: absolute;
-            bottom: -8px; left: 18px;
-            border-left: 2px solid transparent;
-            border-right: 2px solid transparent;
-            border-top: 8px solid currentColor;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-110vh) rotate(20deg); opacity: 0; }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>משחק הפעלים הגדול</h1>
-    <div class="subtitle">מתרגלים את הבניין הראשון (קל) מול הבניין החמישי (הפעיל)</div>
+<div class="quiz-container">
+    <div class="question-container">
+        <div class="question-wrapper">
+            <div class="question" id="questionText">מהו הרכיב המרכזי במודל EVE המגדיר את מחיר החלופה הטובה ביותר בשוק?</div>
+            <div class="translation-text" id="translationText">What is the core component in the EVE model that defines the price of the next best alternative in the market?</div>
+        </div>
+        <button class="btn-speak" onclick="speakQuestion()" title="הקרא שאלה">🔊</button>
+    </div>
     
-    <!-- כפתור הפעלת/כיבוי תרגום -->
-    <button id="lang-toggle" class="lang-toggle-btn" onclick="toggleEnglish()">English Translation: OFF 🌐</button>
-    
-    <div class="progress-bar">
-        <div class="progress" id="progress"></div>
+    <div class="btn-container">
+        <button class="btn-translate" onclick="toggleTranslation()">Translation</button>
     </div>
 
-    <div id="quiz-space"></div>
-    <div id="rationale-space" class="rationale"></div>
-    <button id="next-action" class="next-btn" onclick="nextQuestion()">המשך לשאלה הבאה ←</button>
+    <div class="options" id="optionsContainer">
+        <button class="option-btn" onclick="checkAnswer(false, 'differentiation')">א) ערך דיפרנציאלי (Differentiation Value)</button>
+        <button class="option-btn" onclick="checkAnswer(true, 'reference')">ב) מחיר ייחוס (Reference Value)</button>
+        <button class="option-btn" onclick="checkAnswer(false, 'capture')">ג) תפיסת מחיר (Price Capture)</button>
+    </div>
+
+    <div class="feedback" id="feedbackBox">
+        <div class="feedback-content-wrapper">
+            <div>
+                <div id="feedbackHebrew"></div>
+                <div class="eng-feedback" id="feedbackEnglish"></div>
+            </div>
+            <button class="btn-speak" onclick="speakFeedback()" title="הקרא משוב" style="background-color: #28a745;">🔊</button>
+        </div>
+    </div>
 </div>
 
-<div class="balloon-container" id="balloon-container"></div>
-
 <script>
-let englishMode = false;
+    let isTranslationVisible = false;
+    let currentResult = null; 
+    let currentOptionKey = null;
 
-// מאגר השאלות המלא עם תרגום מובנה לאנגלית של המשפטים וההסברים
-const allQuestions = [
-    { 
-        q: "אתמול המורים _______ על הלוח את חוקי המשחק. (כ.ת.ב)", 
-        q_en: "Yesterday the teachers _______ the rules of the game on the board.",
-        hint: "המורים ביצעו את פעולת הכתיבה בעצמם באופן פשוט.", 
-        hint_en: "The teachers performed the writing action themselves directly (Kal).",
-        options: ["כָּתְבוּ", "הִכְתִּיבוּ", "יִכְתְּבוּ", "כּוֹתְבִים"], 
-        correct: 0, 
-        rationales: [
-            "בול! זהו בניין קל (הבניין הראשון) בזמן עבר – הם כתבו בעצמם. <br><small><b>English:</b> Correct! This is Kal (1st binyan) past tense - they wrote it themselves.</small>", 
-            "זהו בניין הפעיל, אך הם לא הקריאו לתלמידים אלא כתבו בעצמם. <br><small><b>English:</b> Incorrect. This is Hif'il (dictated), but they wrote it directly.</small>", 
-            "זוהי צורת זמן עתיד, אך המשפט מתייחס ל'אתמול'. <br><small><b>English:</b> Incorrect. This is future tense, but the sentence says 'Yesterday'.</small>", 
-            "זוהי צורת זמן הווה, והמשפט דורש עבר. <br><small><b>English:</b> Incorrect. This is present tense, but past tense is required.</small>"
-        ] 
-    },
-    { 
-        q: "אתמול המורים _______ לתלמידים את המילים החדשות. (כ.ת.ב)", 
-        q_en: "Yesterday the teachers _______ the new words to the students.",
-        hint: "המורים גרמו לתלמידים לכתוב את המילים על ידי כך שהקריאו אותן.", 
-        hint_en: "The teachers caused the students to write by dictating the words (Hif'il).",
-        options: ["כָּתְבוּ", "הִכְתִּיבוּ", "יַכְתִּיבוּ", "מַכְתִּיבִים"], 
-        correct: 1, 
-        rationales: [
-            "בניין קל פירושו שהם כתבו בעצמם, אך כאן הם גרמו לתלמידים לכתוב. <br><small><b>English:</b> Incorrect. Kal means they wrote themselves, but here they dictated.</small>", 
-            "מעולה! המורים גרמו לתלמידים לכתוב, ולכן זהו בניין הפעיל בזמן עבר. <br><small><b>English:</b> Excellent! The teachers caused the students to write (dictated) - Hif'il past tense.</small>", 
-            "זוהי צורת זמן עתיד של בניין הפעיל, והמשפט קרה כבר 'אתמול'. <br><small><b>English:</b> Incorrect. This is Hif'il future, but the sentence is set in the past.</small>", 
-            "זוהי צורת זמן הווה, והמשפט דורש עבר. <br><small><b>English:</b> Incorrect. This is present tense, but past is needed.</small>"
-        ] 
-    },
-    { 
-        q: "מחר הבנים _______ במסיבה הגדולה. (ר.ק.ד)", 
-        q_en: "Tomorrow the boys _______ at the big party.",
-        hint: "הבנים יבצעו את פעולת הריקוד בעצמם בעתיד.", 
-        hint_en: "The boys will do the dancing action themselves tomorrow (Kal future).",
-        options: ["רָקְדוּ", "יַרְקִידוּ", "יִרְקְדוּ", "רוֹקְדִים"], 
-        correct: 2, 
-        rationales: [
-            "זוהי צורת זמן עבר, והמשפט מדבר על 'מחר'. <br><small><b>English:</b> Incorrect. This is past tense, but the sentence says 'Tomorrow'.</small>", 
-            "זהו בניין הפעיל, אך הבנים רוקדים בעצמם ולא מפעילים אחרים. <br><small><b>English:</b> Incorrect. This is Hif'il (will make others dance), but they are dancing themselves.</small>", 
-            "מצוין! הבנים ירקדו בעצמם בעתיד – בניין קל (הראשון). <br><small><b>English:</b> Correct! The boys will dance themselves in the future - Kal future tense.</small>", 
-            "זוהי צורת זמן הווה, והמשפט דורש עתיד. <br><small><b>English:</b> Incorrect. This is present tense, but future tense is needed.</small>"
-        ] 
-    },
-    { 
-        q: "מחר הבנים _______ את הבנות ברחבת הריקודים. (ר.ק.ד)", 
-        q_en: "Tomorrow the boys _______ the girls on the dance floor.",
-        hint: "הבנים יגרמו לבנות לרקוד איתם (יפעילו אותן).", 
-        hint_en: "The boys will make/lead the girls to dance (Hif'il causative).",
-        options: ["יִרְקְדוּ", "הִרְקִידוּ", "יַרְקִידוּ", "מַרְקִידִים"], 
-        correct: 2, 
-        rationales: [
-            "בניין קל פירושו לרקוד בעצמם, אך כאן הם מפעילים ומובילים את הבנות. <br><small><b>English:</b> Incorrect. Kal means to dance alone, but here they affect an object ('the girls').</small>", 
-            "זוהי צורת זמן עבר של בניין הפעיל, והמשפט מדבר על מחר. <br><small><b>English:</b> Incorrect. This is Hif'il past, but the sentence requires future.</small>", 
-            "כל הכבוד! הבנים יגרמו לבנות לרקוד בעתיד – בניין הפעיל. <br><small><b>English:</b> Well done! The boys will make the girls dance - Hif'il future tense.</small>", 
-            "זוהי צורת זמן הווה, והמשפט דורש עתיד. <br><small><b>English:</b> Incorrect. This is present tense, but future is required.</small>"
-        ] 
-    },
-    { 
-        q: "בשבוע שעבר, רוני _______ חולצה לבנה חגיגית. (ל.ב.שׁ)", 
-        q_en: "Last week, Roni _______ a festive white shirt.",
-        hint: "רוני שם את הבגד על עצמו באופן פשוט ופעיל.", 
-        hint_en: "Roni put the garment on himself directly (Kal).",
-        options: ["לָבַשׁ", "הִלְבִּישׁ", "יִלְבַּשׁ", "לוֹבֵשׁ"], 
-        correct: 0, 
-        rationales: [
-            "נכון! רוני ביצע את הפעולה על עצמו בעבר – בניין קל. <br><small><b>English:</b> Correct! Roni performed the action on himself in the past - Kal.</small>", 
-            "זהו בניין הפעיל, שפירושו לשים בגד על מישהו אחר. <br><small><b>English:</b> Incorrect. This is Hif'il, which means to dress someone else.</small>", 
-            "זוהי צורת זמן עתיד, והמשפט קרה כבר בשבוע שעבר. <br><small><b>English:</b> Incorrect. This is future tense, but it happened last week.</small>", 
-            "זוהי צורת זמן הווה, והמשפט דורש עבר. <br><small><b>English:</b> Incorrect. This is present tense, but past is needed.</small>"
-        ] 
-    },
-    { 
-        q: "אתמול בבוקר, האבא _______ את הילד הקטן לגן. (ל.ב.שׁ)", 
-        q_en: "Yesterday morning, the father _______ the little boy for kindergarten.",
-        hint: "האבא עשה את פעולת הלבישה עבור מישהו אחר וגרם לו להיות לבוש.", 
-        hint_en: "The father dressed someone else, causing him to be clothed (Hif'il).",
-        options: ["לָבַשׁ", "הִלְבִּישׁ", "יַלְבִּישׁ", "מַלְבִּישׁ"], 
-        correct: 1, 
-        rationales: [
-            "בניין קל פירושו שהאבא לבש בגדים של עצמו. <br><small><b>English:</b> Incorrect. Kal means the father dressed himself.</small>", 
-            "יפה מאוד! האבא גרם לילד להיות לבוש, ולכן זהו בניין הפעיל בעבר. <br><small><b>English:</b> Very good! The father dressed the boy (causative) - Hif'il past tense.</small>", 
-            "זוהי צורת זמן עתיד של בניין הפעיל, והמשפט דורש עבר. <br><small><b>English:</b> Incorrect. Future Hif'il, but the sentence is in the past.</small>", 
-            "זוהי צורת זמן הווה, והמשפט דורש עבר. <br><small><b>English:</b> Incorrect. Present tense, but past is needed.</small>"
-        ] 
-    }
-];
+    // מאגר התשובות וההסברים בשתי השפות
+    const explanations = {
+        correct: {
+            he: "כל הכבוד! מחיר ייחוס הוא אכן תג המחיר של החלופה הטובה ביותר של הלקוח בשוק.",
+            en: "Excellent! Reference Value is indeed the price tag of the customer's next best alternative in the market."
+        },
+        wrong: {
+            differentiation: {
+                he: "לא מדויק. ערך דיפרנציאלי מייצג את הערך הייחודי שהמוצר שלך מוסיף או מחסיר מעבר לחלופה הקיימת.",
+                en: "Incorrect. Differentiation Value represents the unique value your product adds or subtracts beyond the existing alternative."
+            },
+            capture: {
+                he: "לא נכון. תפיסת מחיר היא החלק מתוך סך הערך הכלכלי שהחברה מחליטה לגבות בפועל.",
+                en: "Incorrect. Price Capture is the percentage of the Total Economic Value that the company actually decides to charge."
+            }
+        }
+    };
 
-let questionsList = [];
-let currentQuestionIndex = 0;
-let score = 0;
-let wrongAnswersIndex = JSON.parse(localStorage.getItem('wrong_verbs_index')) || [];
-
-function toggleEnglish() {
-    englishMode = !englishMode;
-    const btn = document.getElementById('lang-toggle');
-    if (englishMode) {
-        btn.innerText = "English Translation: ON 🌐";
-        btn.classList.add('eng-active');
-    } else {
-        btn.innerText = "English Translation: OFF 🌐";
-        btn.classList.remove('eng-active');
-    }
-    
-    // עדכון תצוגת התרגום בשאלה הנוכחית באופן מיידי
-    const engDiv = document.getElementById('eng-trans');
-    if (engDiv) {
-        if (englishMode) engDiv.classList.add('visible');
-        else engDiv.classList.remove('visible');
-    }
-}
-
-function initGame() {
-    let wrongQs = allQuestions.filter((_, idx) => wrongAnswersIndex.includes(idx));
-    let otherQs = allQuestions.filter((_, idx) => !wrongAnswersIndex.includes(idx));
-    
-    otherQs.sort(() => Math.random() - 0.5);
-    
-    questionsList = [...wrongQs, ...otherQs];
-    currentQuestionIndex = 0;
-    score = 0;
-    
-    showQuestion();
-}
-
-function showQuestion() {
-    if (currentQuestionIndex >= questionsList.length) {
-        showResults();
-        return;
-    }
-
-    const currentQ = questionsList[currentQuestionIndex];
-    const isReview = wrongAnswersIndex.includes(allQuestions.indexOf(currentQ));
-
-    document.getElementById('progress').style.width = `${(currentQuestionIndex / questionsList.length) * 100}%`;
-    document.getElementById('rationale-space').className = "rationale";
-    document.getElementById('next-action').style.display = 'none';
-
-    let html = `
-        <div class="card active">
-            ${isReview ? '<div style="background:#fff3cd; color:#856404; padding:5px; border-radius:5px; margin-bottom:10px; font-size:0.85em; font-weight:bold;">🔄 שאלה לתרגול חוזר / Review Question</div>' : ''}
-            <div class="question">שאלה ${currentQuestionIndex + 1} מתוך ${questionsList.length}:<br>${currentQ.q}</div>
-            
-            <!-- אזור תרגום לאנגלית -->
-            <div id="eng-trans" class="english-translation ${englishMode ? 'visible' : ''}">
-                <b>English:</b> ${currentQ.q_en}<br>
-                <small style="color:#7f8c8d;">💡 Hint: ${currentQ.hint_en}</small>
-            </div>
-
-            <div class="hint">💡 רמז: ${currentQ.hint}</div>
-            <div class="options">
-    `;
-
-    currentQ.options.forEach((opt, idx) => {
-        html += `<button class="option-btn" onclick="checkAnswer(${idx}, this)">${opt}</button>`;
-    });
-
-    html += `</div></div>`;
-    document.getElementById('quiz-space').innerHTML = html;
-}
-
-function checkAnswer(selectedIdx, btnElement) {
-    const currentQ = questionsList[currentQuestionIndex];
-    const originalIndex = allQuestions.indexOf(currentQ);
-    const buttons = document.querySelectorAll('.option-btn');
-    
-    buttons.forEach(btn => btn.disabled = true);
-
-    const rationaleSpace = document.getElementById('rationale-space');
-    rationaleSpace.innerHTML = currentQ.rationales[selectedIdx];
-    rationaleSpace.className = "rationale visible";
-
-    if (selectedIdx === currentQ.correct) {
-        btnElement.classList.add('correct');
-        rationaleSpace.style.background = '#e8f8f0';
-        rationaleSpace.style.color = '#1e7e34';
-        score++;
-        popBalloons();
+    // פונקציית כפתור התרגום - מציגה ומסתירה את האנגלית
+    function toggleTranslation() {
+        isTranslationVisible = !isTranslationVisible;
+        const translationDiv = document.getElementById('translationText');
+        const engFeedbackDiv = document.getElementById('feedbackEnglish');
         
-        wrongAnswersIndex = wrongAnswersIndex.filter(idx => idx !== originalIndex);
-    } else {
-        btnElement.classList.add('wrong');
-        rationaleSpace.style.background = '#fce8e6';
-        rationaleSpace.style.color = '#bd2130';
+        translationDiv.style.display = isTranslationVisible ? 'block' : 'none';
         
-        buttons[currentQ.correct].classList.add('correct');
-
-        if (!wrongAnswersIndex.includes(originalIndex)) {
-            wrongAnswersIndex.push(originalIndex);
+        // אם הסטודנט טעה והמשוב פתוח, כפתור התרגום ישלוט גם על תרגום המשוב
+        if (currentResult === false && engFeedbackDiv.innerText !== "") {
+            engFeedbackDiv.style.display = isTranslationVisible ? 'block' : 'none';
         }
     }
 
-    localStorage.setItem('wrong_verbs_index', JSON.stringify(wrongAnswersIndex));
-    document.getElementById('next-action').style.display = 'inline-block';
-}
-
-function nextQuestion() {
-    currentQuestionIndex++;
-    showQuestion();
-}
-
-function showResults() {
-    document.getElementById('progress').style.width = '100%';
-    const pct = Math.round((score / questionsList.length) * 100);
-    
-    let summaryMessage = "";
-    if (pct === 100) summaryMessage = "מושלם! אלוף העולם בפעלים! 🏆 / Perfect Score!";
-    else if (pct >= 80) summaryMessage = "כל הכבוד! תוצאה מצוינת! 🌟 / Great job!";
-    else summaryMessage = "תרגול נוסף מחר יעזור לך להשתפר פלאים! 📖 / Keep practicing!";
-
-    let html = `
-        <div class="card active">
-            <h2>סיימנו את התרגיל! 🎉 Done!</h2>
-            <p style="font-size: 1.4rem; font-weight: bold; margin: 20px 0;">הציון שלך: ${score} מתוך ${questionsList.length} (${pct}%)</p>
-            <p>${summaryMessage}</p>
-            <button class="next-btn" style="display:inline-block; background:var(--success);" onclick="initGame()">לתרגל שוב / Play Again 🔄</button>
-        </div>
-    `;
-    document.getElementById('quiz-space').innerHTML = html;
-    document.getElementById('rationale-space').className = "rationale";
-    document.getElementById('next-action').style.display = 'none';
-}
-
-function popBalloons() {
-    const container = document.getElementById('balloon-container');
-    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f1c40f', '#9b59b6', '#ff9f43'];
-    
-    for (let i = 0; i < 12; i++) {
-        const balloon = document.createElement('div');
-        balloon.className = 'balloon';
-        balloon.style.left = Math.random() * 100 + 'vw';
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        balloon.style.backgroundColor = color;
-        balloon.style.color = color;
-        balloon.style.animationDelay = (Math.random() * 0.5) + 's';
-        balloon.style.animationDuration = (3 + Math.random() * 2) + 's';
+    // פונקציית בדיקת התשובות
+    function checkAnswer(isCorrect, optionKey) {
+        currentResult = isCorrect;
+        currentOptionKey = optionKey;
+        const feedbackBox = document.getElementById('feedbackBox');
+        const feedbackHebrew = document.getElementById('feedbackHebrew');
+        const feedbackEnglish = document.getElementById('feedbackEnglish');
         
-        container.appendChild(balloon);
-        setTimeout(() => balloon.remove(), 5000);
-    }
-}
+        feedbackEnglish.style.display = 'none'; // איפוס ברירת מחדל
 
-initGame();
+        if (isCorrect) {
+            feedbackBox.className = "feedback correct";
+            feedbackHebrew.innerText = explanations.correct.he;
+            feedbackEnglish.innerText = explanations.correct.en;
+            // בתשובה נכונה נציג אנגלית תמיד כחלק מהחיזוק
+            feedbackEnglish.style.display = 'block';
+        } else {
+            feedbackBox.className = "feedback wrong";
+            feedbackHebrew.innerText = explanations.wrong[optionKey].he;
+            feedbackEnglish.innerText = explanations.wrong[optionKey].en;
+            
+            // בתשובה שגויה - האנגלית תוצג אך ורק אם כפתור התרגום לחוץ
+            if (isTranslationVisible) {
+                feedbackEnglish.style.display = 'block';
+            }
+        }
+
+        feedbackBox.style.display = 'block';
+    }
+
+    // פונקציית הטקסט-לקול (Voice) הפנימית של הדפדפן
+    function speakText(text, langCode) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // עצירת הקראות קודמות למניעת כפל קולות
+            
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = langCode; 
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("הדפדפן שלך אינו תומך בהקראת קול במערכת זו.");
+        }
+    }
+
+    // הקראת השאלה בקול
+    function speakQuestion() {
+        const textHebrew = document.getElementById('questionText').innerText;
+        speakText(textHebrew, 'he-IL'); // מקריא בעברית
+        
+        // אם כפתור התרגום פתוח, המערכת תקריא גם את השאלה באנגלית לאחר השהייה קלה
+        if (isTranslationVisible) {
+            const textEnglish = document.getElementById('translationText').innerText;
+            setTimeout(() => {
+                speakText(textEnglish, 'en-US'); // מקריא באנגלית
+            }, 4000); 
+        }
+    }
+
+    // הקראת משוב התשובה בקול
+    function speakFeedback() {
+        if (currentResult === null) return;
+        
+        let textHebrew = "";
+        let textEnglish = "";
+
+        if (currentResult) {
+            textHebrew = explanations.correct.he;
+            textEnglish = explanations.correct.en;
+        } else if (currentOptionKey) {
+            textHebrew = explanations.wrong[currentOptionKey].he;
+            textEnglish = explanations.wrong[currentOptionKey].en;
+        }
+
+        speakText(textHebrew, 'he-IL'); // קודם כל מקריא בעברית
+
+        // מקריא באנגלית רק אם מדובר בתשובה נכונה או אם כפתור התרגום לחוץ
+        if (isTranslationVisible || currentResult) {
+            setTimeout(() => {
+                speakText(textEnglish, 'en-US');
+            }, 4500);
+        }
+    }
 </script>
 
 </body>
